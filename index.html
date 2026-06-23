@@ -27,8 +27,8 @@ button:disabled {background:#999;cursor:not-allowed;opacity:0.5;}
 .xPostBtn:hover, .optionBtn:hover {opacity:0.8;}
 .overlay {display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.45);z-index:999;}
 footer {margin-top:24px;font-size:12px;color:#555;text-align:center;width:100%;}
-@keyframes fadeIn {from {opacity:0; transform:translateY(12px);} to {opacity:1; transform:translateY(0);}}
-@keyframes xButtonIn {from {opacity:0; transform:translateY(12px);} to {opacity:1; transform:translateY(0);}}
+@keyframes fadeIn {from {opacity:0; transform:translateY(12px);} to {opacity:1; transform:translateY(0);} }
+@keyframes xButtonIn {from {opacity:0; transform:translateY(12px);} to {opacity:1; transform:translateY(0);} }
 @media(max-width:600px){body{align-items:flex-start}.row{padding:12px 16px}textarea{height:330px;padding:16px;font-size:15px}button{width:100%;padding:13px}.closeBtn{width:auto}.xPostBtn{width:auto}.optionBtn{width:auto}}
 </style>
 </head>
@@ -110,6 +110,7 @@ function sendMail(){
     const opt2=document.getElementById("opt2");
     xBtn.style.display="none"; opt1.style.display="none"; opt2.style.display="none";
 
+    // 優先判定
     if(hasCat){
       replyMessage="パン屋強盗事件　報告を受領した。\n猫、か。\nご主人に聞いたところ飼い猫の「ミルクちゃん」は日課の散歩にでかけたそうだ。\nミルクちゃんを追えば何かわかるかもしれない。\n\n今回も見事な推理だった。また頼むよ。";
       canPostToX=true; xBtn.style.display="block";
@@ -121,11 +122,11 @@ function sendMail(){
       replyMessage="一緒に思考を整理しよう。\nまずは君の推理を聞かせてくれ。";
       opt1.style.display="block"; opt2.style.display="block";
     } else if(hasBread){
-      replyMessage="ポイントカードの店に来たが、まさかここでも事件が起こるとはな。なんだか怖くなってきたよ。";
+      replyMessage="ポイントカードの店に来たが、まさかここでも事件が起こるとはな。\nなんだか怖くなってきたよ。";
     } else if(hasMitaShun){
       replyMessage="次々と事件が起こるな…。";
     } else if(hasNF){
-      replyMessage="こういった暗号や謎の類は苦手でね…足で捜査することなら任せてくれ。";
+      replyMessage="こういった暗号や謎の類は苦手でね…\n足で捜査することなら任せてくれ。";
     } else{
       replyMessage="なるほど…情報が足りない。\nもう一度確認してほしい。";
     }
@@ -149,7 +150,9 @@ function openReply(){
   let i=0; if(typingTimer) clearInterval(typingTimer);
   typingTimer=setInterval(()=>{
     replyText.innerHTML=replyMessage.slice(0,i); i++;
-    if(i>replyMessage.length){ clearInterval(typingTimer); if(canPostToX) setTimeout(()=>{xBtn.style.display="block";},400);
+    if(i>replyMessage.length){
+      clearInterval(typingTimer); 
+      if(canPostToX) setTimeout(()=>{xBtn.style.display="block";},400);
       if(replyMessage.includes("まずは君の推理を聞かせてくれ")){ opt1.style.display="block"; opt2.style.display="block"; }
     }
   },25);
@@ -167,10 +170,9 @@ function closeReply(){
   checkInput(); answerBox.focus();
 }
 
-// X投稿（猫メールのみ）
 function postToX(){
   const originalTweetUrl="https://x.com/r4lu3m8l/status/2066838202921480355?s=20";
-  const postText="【File002：おりたたみ探偵事務所　パン屋強盗事件】\nパン屋強盗事件の報告を完了。\nN.Fに報告した\n#おりたたみ探偵事務所 #謎解き";
+  const postText="【File003：おりたたみ探偵事務所　パン屋強盗事件】\nパン屋強盗事件の報告を完了。\nN.Fに報告した\n#おりたたみ探偵事務所 #謎解き";
   const url="https://twitter.com/intent/tweet?text="+encodeURIComponent(postText)+"&url="+encodeURIComponent(originalTweetUrl);
   window.open(url,"_blank");
 }
@@ -179,15 +181,22 @@ function optionClick(n){
   const replyText=document.getElementById("replyText");
   if(n===1){
     closeReply();
-    setTimeout(()=>{ document.getElementById("notification").style.display="block"; document.getElementById("notification").dataset.option="1"; },400);
+    setTimeout(()=>{
+      const notif=document.getElementById("notification");
+      notif.dataset.option="1";
+      notif.style.display="block";
+    },400);
   }
   if(n===2){
     closeReply();
-    setTimeout(()=>{ document.getElementById("notification").style.display="block"; document.getElementById("notification").dataset.option="2"; },400);
+    setTimeout(()=>{
+      const notif=document.getElementById("notification");
+      notif.dataset.option="2";
+      notif.style.display="block";
+    },400);
   }
 }
 
-// 新着メール通知クリックで選択肢の返信を表示
 document.getElementById("notification").addEventListener("click",()=>{
   const n=document.getElementById("notification").dataset.option;
   if(n==="1") replyMessage="これは日付、ではないのかもしれないな。\n条件に合致しそうなものを見つけてくれ。";
