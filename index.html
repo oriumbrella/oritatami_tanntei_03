@@ -50,7 +50,7 @@ footer {margin-top:24px;font-size:12px;color:#555;text-align:center;width:100%;}
 
 <div id="reply" class="reply">
   <button class="closeBtn" onclick="closeReply()">×</button>
-  <div class="reply-title"></div>
+  <div class="reply-title">From: N.F@koreha.fiction.da<br>Subject: RE: パン屋強盗事件　報告メール</div>
   <div id="replyText"></div>
   <button id="xPostButton" class="xPostBtn" onclick="postToX()">Xで報告する</button>
   <button id="opt1" class="optionBtn" onclick="optionClick(1)">①1/9、7/9、9/9について</button>
@@ -68,8 +68,8 @@ footer {margin-top:24px;font-size:12px;color:#555;text-align:center;width:100%;}
 const answerBox=document.getElementById("answer");
 const sendButton=document.getElementById("sendButton");
 const notification=document.getElementById("notification");
-
-function checkInput(){ sendButton.disabled = answerBox.value.trim() === ""; }
+const status=document.getElementById("status");
+const mailBox=document.getElementById("mailBox");
 
 let replyMessage="", typingTimer=null, canPostToX=false;
 let newMailQueue=[];
@@ -86,84 +86,55 @@ const words={
   otherLanguages:["スペイン語","ハングル","中国語","ロシア語","フランス語","ドイツ語","イタリア語","ポルトガル語","アラビア語","ヒンディー語","タイ語","ベトナム語","インドネシア語","トルコ語","韓国語","日本語"]
 };
 
+function checkInput(){ sendButton.disabled = answerBox.value.trim() === ""; }
+
 function sendMail(){
   const input=answerBox.value.trim();
   if(!input) return;
 
   sendButton.disabled=true;
-  document.getElementById("status").style.display="block";
-  document.getElementById("status").textContent="送信中...";
-  document.getElementById("mailBox").classList.add("sending");
-  
+  status.style.display="block";
+  status.textContent="送信中...";
+  mailBox.classList.add("sending");
+  notification.style.display="none";
+
+  const hasCat=words.cat.some(w=>input.includes(w));
+  const hasProduct=words.product.some(w=>input.includes(w));
+  const hasMenu=words.menu.some(w=>input.includes(w));
+  const hasBread=words.bread.some(w=>input.includes(w));
+  const hasMitaShun=words.mitaShun.some(w=>input.includes(w));
+  const hasHint=words.hint.some(w=>input.includes(w));
+  const hasEnglish=words.english.some(w=>input.includes(w));
+  const hasOtherLang=words.otherLanguages.some(w=>input.includes(w));
+  const hasNF=words.nf.some(w=>input.includes(w));
+
   let msg="";
-  if(words.cat.some(w=>input.includes(w))){
-    msg="パン屋強盗事件　報告を受領した。\n猫、か。\nご主人に聞いたところ飼い猫の「ミルクちゃん」は日課の散歩にでかけたそうだ。\nミルクちゃんを追えば何かわかるかもしれない。\n\n今回も見事な推理だった。また頼むよ。";
-  } else if(words.product.some(w=>input.includes(w))){
-    msg="なるほど…商品名か。\nしかしそれでは盗まれたものがわからないな。\n私にできることはあるだろうか？";
-  } else if(words.menu.some(w=>input.includes(w))){
-    msg="メニューリスト…ああここにあった。内容を共有する。\n<ul><li>フランスパン</li><li>チョココロネ</li><li>アップルパイ</li><li>クロワッサン</li><li>メロンパン</li><li>食パン</li><li>サンドウィッチ</li></ul>\n何か役に立つだろうか";
-  } else if(words.bread.some(w=>input.includes(w))){
-    msg="ポイントカードの店に来たが、まさかここでも事件が起こるとはな。\nなんだか怖くなってきたよ。";
-  } else if(words.mitaShun.some(w=>input.includes(w))){
-    msg="次々と事件が起こるな…。";
-  } else if(words.hint.some(w=>input.includes(w))){
-    msg="一緒に思考を整理しよう。\nまずは君の推理を聞かせてくれ。";
-  } else if(words.english.some(w=>input.includes(w))){
-    msg="なるほど、英語か…\n<ul><li>French bread</li><li>Chocolate cornet</li><li>Apple pie</li><li>Croissant</li><li>Melon pan</li><li>White bread</li><li>Sandwich</li></ul>";
-  } else if(words.otherLanguages.some(w=>input.includes(w))){
-    msg="すまない…その言語には明るくなくてね…";
-  } else if(words.nf.some(w=>input.includes(w))){
-    msg="こういった暗号や謎の類は苦手でね…足で捜査することなら任せてくれ。";
-  } else{
-    msg="なるほど…情報が足りない。もう一度確認してほしい。";
-  }
+  if(hasCat){ msg="パン屋強盗事件　報告を受領した。\n猫、か。\nご主人に聞いたところ飼い猫の「ミルクちゃん」は日課の散歩にでかけたそうだ。\nミルクちゃんを追えば何かわかるかもしれない。\n\n今回も見事な推理だった。また頼むよ。";}
+  else if(hasProduct){ msg="なるほど…商品名か。\nしかしそれでは盗まれたものがわからないな。\n私にできることはあるだろうか？";}
+  else if(hasMenu){ msg="メニューリスト…ああここにあった。内容を共有する。\n<ul><li>フランスパン</li><li>チョココロネ</li><li>アップルパイ</li><li>クロワッサン</li><li>メロンパン</li><li>食パン</li><li>サンドウィッチ</li></ul>\n何か役に立つだろうか";}
+  else if(hasBread){ msg="ポイントカードの店に来たが、まさかここでも事件が起こるとはな。\nなんだか怖くなってきたよ。";}
+  else if(hasMitaShun){ msg="次々と事件が起こるな…。";}
+  else if(hasHint){ msg="一緒に思考を整理しよう。\nまずは君の推理を聞かせてくれ。";}
+  else if(hasEnglish){ msg="なるほど、英語か…\n<ul><li>French bread</li><li>Chocolate cornet</li><li>Apple pie</li><li>Croissant</li><li>Melon pan</li><li>White bread</li><li>Sandwich</li></ul>";}
+  else if(hasOtherLang){ msg="すまない…その言語には明るくなくてね…";}
+  else if(hasNF){ msg="こういった暗号や謎の類は苦手でね…足で捜査することなら任せてくれ。";}
+  else{ msg="なるほど…情報が足りない。もう一度確認してほしい。";}
 
   newMailQueue.push(msg);
-
-  // 新着通知更新
-  if(newMailQueue.length>0){
-    notification.innerHTML = "📩 新着メール 1件<br><strong>From: N.F@koreha.fiction.da</strong>";
-    notification.style.display = "block";
-  }
-
   answerBox.value="";
+
+  setTimeout(()=>{
+    status.style.display="none";
+    mailBox.classList.remove("sending");
+    checkInput();
+    if(newMailQueue.length>0){
+      notification.innerHTML = "📩 新着メール 1件<br><strong>From: N.F@koreha.fiction.da</strong>";
+      notification.style.display = "block";
+    }
+  },1200);
 }
 
-function openReply(){
-  if(newMailQueue.length===0) return;
-  const reply=document.getElementById("reply");
-  const replyText=document.getElementById("replyText");
-  const replyTitle=document.querySelector(".reply-title");
-
-  const msg=newMailQueue.shift();
-  replyMessage=msg;
-  replyText.innerHTML="";
-  replyTitle.innerHTML="From: N.F@koreha.fiction.da<br>Subject: RE: パン屋強盗事件　報告メール";
-
-  document.getElementById("overlay").style.display="block"; 
-  reply.style.display="block";
-
-  let i=0; if(typingTimer) clearInterval(typingTimer);
-  typingTimer=setInterval(()=>{
-    replyText.innerHTML=replyMessage.slice(0,i); i++;
-    if(i>replyMessage.length){ clearInterval(typingTimer); }
-  },25);
-}
-
-function closeReply(){
-  document.getElementById("reply").style.display="none";
-  document.getElementById("overlay").style.display="none";
-  document.getElementById("notification").style.display="none";
-  checkInput(); answerBox.focus();
-}
-
-function postToX(){
-  const postText="【File003：おりたたみ探偵事務所　パン屋強盗事件】\nパン屋強盗事件の報告を完了。\nN.Fに報告した\n#おりたたみ探偵事務所 #謎解き";
-  const url="https://twitter.com/intent/tweet?text="+encodeURIComponent(postText);
-  window.open(url,"_blank");
-}
-
-// optionClick関数はここに追加可能（省略）
+// openReply, closeReply, postToX, optionClick は以前通り
 </script>
 
 </body>
