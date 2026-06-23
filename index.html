@@ -43,14 +43,14 @@ footer {margin-top:24px;font-size:12px;color:#555;text-align:center;width:100%;}
   </div>
 
   <div id="status" class="status">送信中...</div>
-  <div id="notification" class="notification" onclick="openNewMail()"></div>
+  <div id="notification" class="notification" onclick="openNewMail()">📩 新着メール 1件<br><strong>From: N.F@koreha.fiction.da</strong></div>
 </div>
 
 <div id="overlay" class="overlay" onclick="closeReply()"></div>
 
 <div id="reply" class="reply">
   <button class="closeBtn" onclick="closeReply()">×</button>
-  <div class="reply-title"></div>
+  <div class="reply-title">From: N.F@koreha.fiction.da<br>Subject: RE: パン屋強盗事件　報告メール</div>
   <div id="replyText"></div>
   <button id="xPostButton" class="xPostBtn" onclick="postToX()">Xで報告する</button>
   <button id="opt1" class="optionBtn" onclick="optionClick(1)">①1/9、7/9、9/9について</button>
@@ -66,10 +66,11 @@ footer {margin-top:24px;font-size:12px;color:#555;text-align:center;width:100%;}
 <script>
 const answerBox=document.getElementById("answer");
 const sendButton=document.getElementById("sendButton");
-function checkInput(){ sendButton.disabled = answerBox.value.trim() === ""; }
-
-let replyMessage="", typingTimer=null, canPostToX=false;
+let typingTimer=null;
+let canPostToX=false;
 let pendingReply=null;
+
+function checkInput(){ sendButton.disabled = answerBox.value.trim() === ""; }
 
 const words={
   product:["商品名"],
@@ -104,45 +105,37 @@ function sendMail(){
   },1200);
 
   setTimeout(()=>{
-    status.style.display="none"; 
-    notification.style.display="block";
-    notification.innerHTML="📩 新着メール 1件<br><strong>From: N.F@koreha.fiction.da</strong>";
-    pendingReply = null;
+    status.style.display="none"; notification.style.display="block";
+    const xBtn=document.getElementById("xPostButton");
+    const opt1=document.getElementById("opt1");
+    const opt2=document.getElementById("opt2");
+    const opt3=document.getElementById("opt3");
+    xBtn.style.display="none"; opt1.style.display="none"; opt2.style.display="none"; opt3.style.display="none";
 
     if(hasCat){
       replyMessage="パン屋強盗事件　報告を受領した。\n猫、か。\nご主人に聞いたところ飼い猫の「ミルクちゃん」は日課の散歩にでかけたそうだ。\nミルクちゃんを追えば何かわかるかもしれない。\n\n今回も見事な推理だった。また頼むよ。";
       canPostToX=true;
-      pendingReply={title:"パン屋強盗事件　報告メール", x:true};
+      xBtn.style.display="block";
     } else if(hasMenu){
       replyMessage="メニューリスト…ああここにあった。内容を共有する。\n<ul><li>フランスパン</li><li>チョココロネ</li><li>アップルパイ</li><li>クロワッサン</li><li>メロンパン</li><li>食パン</li><li>サンドウィッチ</li></ul>\n何か役に立つだろうか";
-      canPostToX=false;
-      pendingReply={title:"パン屋強盗事件　報告メール", x:false};
     } else if(hasProduct){
       replyMessage="なるほど…商品名か。\nしかしそれでは盗まれたものがわからないな。\n私にできることはあるだろうか？";
-      canPostToX=false;
-      pendingReply={title:"パン屋強盗事件　報告メール", x:false};
     } else if(hasHint){
       replyMessage="一緒に思考を整理しよう。\nまずは君の推理を聞かせてくれ。";
-      pendingReply={title:"パン屋強盗事件　報告メール", x:false};
+      opt1.style.display="block"; opt2.style.display="block"; opt3.style.display="block";
     } else if(hasBread){
       replyMessage="ポイントカードの店に来たが、まさかここでも事件が起こるとはな。\nなんだか怖くなってきたよ。";
-      pendingReply={title:"パン屋強盗事件　報告メール", x:false};
     } else if(hasMitaShun){
       replyMessage="次々と事件が起こるな…。";
-      pendingReply={title:"パン屋強盗事件　報告メール", x:false};
     } else if(hasNF){
       replyMessage="こういった暗号や謎の類は苦手でね…足で捜査することなら任せてくれ。";
-      pendingReply={title:"パン屋強盗事件　報告メール", x:false};
     } else{
       replyMessage="なるほど…情報が足りない。もう一度確認してほしい。";
-      pendingReply={title:"パン屋強盗事件　報告メール", x:false};
     }
   },2800);
 }
 
-// 新着メールクリック時
-function openNewMail(){
-  if(!pendingReply) return;
+function openReply(){
   const notification=document.getElementById("notification");
   const reply=document.getElementById("reply");
   const replyText=document.getElementById("replyText");
@@ -158,7 +151,7 @@ function openNewMail(){
   typingTimer=setInterval(()=>{
     replyText.innerHTML=replyMessage.slice(0,i); i++;
     if(i>replyMessage.length){ clearInterval(typingTimer);
-      if(pendingReply.x) xBtn.style.display="block";
+      if(canPostToX) xBtn.style.display="block";
       if(replyMessage.includes("まずは君の推理を聞かせてくれ")){
         opt1.style.display="block"; opt2.style.display="block"; opt3.style.display="block";
       }
@@ -177,29 +170,61 @@ function closeReply(){
   checkInput(); answerBox.focus();
 }
 
+let pendingReply=null;
+function optionClick(n){
+  const replyText=document.getElementById("replyText");
+  const replyTitle=document.querySelector(".reply-title");
+
+  // 現在のポップアップを閉じる
+  closeReply();
+
+  if(n===1){ 
+    pendingReply={title:"＞1/9、7/9、9/9について", text:"これは日付、ではないのかもしれないな。\n条件に合致しそうなものを見つけてくれ。"};
+  }
+  if(n===2){ 
+    pendingReply={title:"＞ある程度わかったが次どうしたらいいか", text:"私に何かできることはないだろうか。\n指示をくれれば行動可能だ。"};
+  }
+  if(n===3){
+    pendingReply={title:"＞その先がわからない", text:"おそらく「1/9、7/9、9/9」をもう一度使うのだろう。\nメニューリストのなかに9文字になれる単語はないだろうか。"};
+  }
+
+  // 新着メール通知を表示
+  const notification=document.getElementById("notification");
+  notification.innerHTML="📩 新着メール 1件<br><strong>From: N.F@koreha.fiction.da</strong><br>Subject: RE: パン屋強盗事件　報告メール<br><strong>"+pendingReply.title+"</strong>";
+  notification.style.display="block";
+}
+
+function openNewMail(){
+  if(!pendingReply) return;
+  const notification=document.getElementById("notification");
+  const reply=document.getElementById("reply");
+  const replyText=document.getElementById("replyText");
+  const replyTitle=document.querySelector(".reply-title");
+  const xBtn=document.getElementById("xPostButton");
+
+  notification.style.display="none";
+  reply.style.display="block";
+  document.getElementById("overlay").style.display="block";
+  replyText.innerHTML="";
+  replyTitle.innerHTML="From: N.F@koreha.fiction.da<br>Subject: RE: パン屋強盗事件　報告メール<br><strong>"+pendingReply.title+"</strong>";
+  xBtn.style.display="none";
+
+  let i=0;
+  let text=pendingReply.text;
+  typingTimer=setInterval(()=>{
+    replyText.innerHTML=text.slice(0,i);
+    i++;
+    if(i>text.length) clearInterval(typingTimer);
+  },25);
+}
+
 function postToX(){
   const originalTweetUrl="https://x.com/r4lu3m8l/status/2066838202921480355?s=20";
   const postText="【File003：おりたたみ探偵事務所　パン屋強盗事件】\nパン屋強盗事件の報告を完了。\nN.Fに報告した\n#おりたたみ探偵事務所 #謎解き";
   const url="https://twitter.com/intent/tweet?text="+encodeURIComponent(postText)+"&url="+encodeURIComponent(originalTweetUrl);
   window.open(url,"_blank");
 }
-
-function optionClick(n){
-  const replyText=document.getElementById("replyText");
-  const replyTitle=document.querySelector(".reply-title");
-  if(n===1){ 
-    replyText.innerHTML="これは日付、ではないのかもしれないな。\n条件に合致しそうなものを見つけてくれ。";
-    replyTitle.innerHTML="From: N.F@koreha.fiction.da<br>Subject: RE: パン屋強盗事件　報告メール<br><strong>＞1/9、7/9、9/9について</strong>";
-  }
-  if(n===2){ 
-    replyText.innerHTML="私に何かできることはないだろうか。\n指示をくれれば行動可能だ。";
-    replyTitle.innerHTML="From: N.F@koreha.fiction.da<br>Subject: RE: パン屋強盗事件　報告メール<br><strong>＞ある程度わかったが次どうしたらいいか</strong>";
-  }
-  if(n===3){ 
-    replyText.innerHTML="おそらく「1/9、7/9、9/9」をもう一度使うのだろう。\nメニューリストのなかに9文字になれる単語はないだろうか。";
-    replyTitle.innerHTML="From: N.F@koreha.fiction.da<br>Subject: RE: パン屋強盗事件　報告メール<br><strong>＞その先がわからない</strong>";
-  }
-}
 </script>
+
 </body>
 </html>
