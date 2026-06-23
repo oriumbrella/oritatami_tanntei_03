@@ -96,7 +96,7 @@ function sendMail(){
     xBtn.style.display="none"; opt1.style.display="none"; opt2.style.display="none";
 
     if(hasCat){
-      replyMessage="パン屋強盗事件　報告を受領した。猫、か。\nご主人に聞いたところ飼い猫の「ミルクちゃん」が朝から姿が見えないようだ。\nミルクちゃんを追えば何かわかるかもしれない。\n\n今回も見事な推理だった。また頼むよ。";
+      replyMessage="パン屋強盗事件　報告を受領した。\n猫、か。\nご主人に聞いたところ飼い猫の「ミルクちゃん」が朝から姿が見えないようだ。\nミルクちゃんを追えば何かわかるかもしれない。\n\n今回も見事な推理だった。また頼むよ。";
       canPostToX=true;
       xBtn.style.display="block";
     } else if(hasProduct){
@@ -159,8 +159,8 @@ function postToX(){
 
 function optionClick(n){
   const replyText=document.getElementById("replyText");
-  if(n===1) replyText.innerHTML="これは日付、ではないのかもしれないな。条件に合致しそうなものを見つけてくれ。";
-  if(n===2) replyText.innerHTML="私に何かできることはないだろうか。指示をくれれば行動可能だ。";
+  if(n===1) replyText.innerHTML="これは日付、ではないのかもしれないな。\n条件に合致しそうなものを見つけてくれ。";
+  if(n===2) replyText.innerHTML="私に何かできることはないだろうか。\n指示をくれれば行動可能だ。";
 }
 </script>
 
