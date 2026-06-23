@@ -43,7 +43,7 @@ footer {margin-top:24px;font-size:12px;color:#555;text-align:center;width:100%;}
   </div>
 
   <div id="status" class="status">送信中...</div>
-  <div id="notification" class="notification" onclick="openNewMail()">📩 新着メール 1件<br><strong>From: N.F@koreha.fiction.da</strong></div>
+  <div id="notification" class="notification" onclick="openReply()">📩 新着メール 1件<br><strong>From: N.F@koreha.fiction.da</strong></div>
 </div>
 
 <div id="overlay" class="overlay" onclick="closeReply()"></div>
@@ -66,11 +66,10 @@ footer {margin-top:24px;font-size:12px;color:#555;text-align:center;width:100%;}
 <script>
 const answerBox=document.getElementById("answer");
 const sendButton=document.getElementById("sendButton");
-let typingTimer=null;
-let canPostToX=false;
-let pendingReply=null;
-
 function checkInput(){ sendButton.disabled = answerBox.value.trim() === ""; }
+
+let replyMessage="", typingTimer=null, canPostToX=false;
+let newMailQueue = [];
 
 const words={
   product:["商品名"],
@@ -100,12 +99,11 @@ function sendMail(){
   const hasMitaShun=words.mitaShun.some(w=>input.includes(w));
   const hasNF=words.nf.some(w=>input.includes(w));
 
-  setTimeout(()=>{
-    button.textContent="✓ 送信済み"; status.textContent="送信済み";
-  },1200);
+  setTimeout(()=>{button.textContent="✓ 送信済み"; status.textContent="送信済み";},1200);
 
   setTimeout(()=>{
     status.style.display="none"; notification.style.display="block";
+
     const xBtn=document.getElementById("xPostButton");
     const opt1=document.getElementById("opt1");
     const opt2=document.getElementById("opt2");
@@ -151,7 +149,7 @@ function openReply(){
   typingTimer=setInterval(()=>{
     replyText.innerHTML=replyMessage.slice(0,i); i++;
     if(i>replyMessage.length){ clearInterval(typingTimer);
-      if(canPostToX) xBtn.style.display="block";
+      if(canPostToX) setTimeout(()=>{xBtn.style.display="block";},400);
       if(replyMessage.includes("まずは君の推理を聞かせてくれ")){
         opt1.style.display="block"; opt2.style.display="block"; opt3.style.display="block";
       }
@@ -170,59 +168,28 @@ function closeReply(){
   checkInput(); answerBox.focus();
 }
 
-let pendingReply=null;
-function optionClick(n){
-  const replyText=document.getElementById("replyText");
-  const replyTitle=document.querySelector(".reply-title");
-
-  // 現在のポップアップを閉じる
-  closeReply();
-
-  if(n===1){ 
-    pendingReply={title:"＞1/9、7/9、9/9について", text:"これは日付、ではないのかもしれないな。\n条件に合致しそうなものを見つけてくれ。"};
-  }
-  if(n===2){ 
-    pendingReply={title:"＞ある程度わかったが次どうしたらいいか", text:"私に何かできることはないだろうか。\n指示をくれれば行動可能だ。"};
-  }
-  if(n===3){
-    pendingReply={title:"＞その先がわからない", text:"おそらく「1/9、7/9、9/9」をもう一度使うのだろう。\nメニューリストのなかに9文字になれる単語はないだろうか。"};
-  }
-
-  // 新着メール通知を表示
-  const notification=document.getElementById("notification");
-  notification.innerHTML="📩 新着メール 1件<br><strong>From: N.F@koreha.fiction.da</strong><br>Subject: RE: パン屋強盗事件　報告メール<br><strong>"+pendingReply.title+"</strong>";
-  notification.style.display="block";
-}
-
-function openNewMail(){
-  if(!pendingReply) return;
-  const notification=document.getElementById("notification");
-  const reply=document.getElementById("reply");
-  const replyText=document.getElementById("replyText");
-  const replyTitle=document.querySelector(".reply-title");
-  const xBtn=document.getElementById("xPostButton");
-
-  notification.style.display="none";
-  reply.style.display="block";
-  document.getElementById("overlay").style.display="block";
-  replyText.innerHTML="";
-  replyTitle.innerHTML="From: N.F@koreha.fiction.da<br>Subject: RE: パン屋強盗事件　報告メール<br><strong>"+pendingReply.title+"</strong>";
-  xBtn.style.display="none";
-
-  let i=0;
-  let text=pendingReply.text;
-  typingTimer=setInterval(()=>{
-    replyText.innerHTML=text.slice(0,i);
-    i++;
-    if(i>text.length) clearInterval(typingTimer);
-  },25);
-}
-
 function postToX(){
   const originalTweetUrl="https://x.com/r4lu3m8l/status/2066838202921480355?s=20";
   const postText="【File003：おりたたみ探偵事務所　パン屋強盗事件】\nパン屋強盗事件の報告を完了。\nN.Fに報告した\n#おりたたみ探偵事務所 #謎解き";
   const url="https://twitter.com/intent/tweet?text="+encodeURIComponent(postText)+"&url="+encodeURIComponent(originalTweetUrl);
   window.open(url,"_blank");
+}
+
+function optionClick(n){
+  const replyText=document.getElementById("replyText");
+  const replyTitle=document.querySelector(".reply-title");
+  if(n===1){ 
+    closeReply();
+    setTimeout(()=>{replyMessage="これは日付、ではないのかもしれないな。\n条件に合致しそうなものを見つけてくれ。"; openReply(); replyTitle.innerHTML="From: N.F@koreha.fiction.da<br>Subject: RE: パン屋強盗事件　報告メール<br><strong>＞1/9、7/9、9/9について</strong>";}, 500);
+  }
+  if(n===2){ 
+    closeReply();
+    setTimeout(()=>{replyMessage="私に何かできることはないだろうか。\n指示をくれれば行動可能だ。"; openReply(); replyTitle.innerHTML="From: N.F@koreha.fiction.da<br>Subject: RE: パン屋強盗事件　報告メール<br><strong>＞ある程度わかったが次どうしたらいいか</strong>";}, 500);
+  }
+  if(n===3){
+    closeReply();
+    setTimeout(()=>{replyMessage="おそらく「1/9、7/9、9/9」をもう一度使うのだろう。\nメニューリストのなかに9文字になれる単語はないだろうか。"; openReply(); replyTitle.innerHTML="From: N.F@koreha.fiction.da<br>Subject: RE: パン屋強盗事件　報告メール<br><strong>＞その先がわからない</strong>";},500);
+  }
 }
 </script>
 
