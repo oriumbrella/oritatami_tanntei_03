@@ -23,10 +23,11 @@ button:disabled {background:#999;cursor:not-allowed;opacity:0.5;}
 #replyText {line-height:1.8;}
 .closeBtn {position:absolute;top:12px;right:16px;background:none;border:none;color:#666;font-size:24px;cursor:pointer;padding:0;width:auto;}
 .closeBtn:hover {color:#000;}
-.xPostBtn, .optionBtn {display:none;margin:16px 0 0 0;background:#494B9D;color:white;border:none;border-radius:6px;padding:10px 28px;font-size:15px;cursor:pointer;text-align:left;width:100%;}
+.xPostBtn, .optionBtn {display:none;margin:8px 0 0 0;background:#494B9D;color:white;border:none;border-radius:6px;padding:10px 28px;font-size:15px;cursor:pointer;text-align:left;width:100%;}
 .xPostBtn:hover, .optionBtn:hover {opacity:0.8;}
 .overlay {display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.45);z-index:999;}
 footer {margin-top:24px;font-size:12px;color:#555;text-align:center;width:100%;}
+ul {margin:0;padding-left:20px;}
 </style>
 </head>
 <body>
@@ -45,13 +46,14 @@ footer {margin-top:24px;font-size:12px;color:#555;text-align:center;width:100%;}
 </div>
 
 <div id="overlay" class="overlay" onclick="closeReply()"></div>
+
 <div id="reply" class="reply">
   <button class="closeBtn" onclick="closeReply()">×</button>
   <div class="reply-title">From: N.F@koreha.fiction.da<br>Subject: RE: パン屋強盗事件　報告メール</div>
   <div id="replyText"></div>
   <button id="xPostButton" class="xPostBtn" onclick="postToX()">Xで報告する</button>
-  <button id="opt1" class="optionBtn" onclick="optionClick(1)">①1/9、7/9、9/9について</button>
-  <button id="opt2" class="optionBtn" onclick="optionClick(2)">②ある程度わかったが次どうしたらいいか</button>
+  <button id="opt1" class="optionBtn" onclick="optionClick(1)"></button>
+  <button id="opt2" class="optionBtn" onclick="optionClick(2)"></button>
 </div>
 
 <footer>
@@ -65,14 +67,13 @@ const sendButton=document.getElementById("sendButton");
 function checkInput(){ sendButton.disabled = answerBox.value.trim() === ""; }
 
 let replyMessage="", typingTimer=null, canPostToX=false;
-
 const words={
   product:["商品名"],
-  cat:["cat","Cat","ネコ","キャット","猫"],
+  cat:["cat","Cat","CAT","ネコ","キャット","猫"],
   hint:["わからない","ヒント"],
   menu:["menu list","メニューリスト","Menu List"],
   bread:["bread","BREAD","パン"],
-  mitaShun:["三田駅","みたえき","mitaeki","春野鏡子"],
+  mita:["三田駅","みたえき","mitaeki","春野鏡子"],
   nf:["N.F"]
 };
 
@@ -82,53 +83,39 @@ function sendMail(){
   const button=document.getElementById("sendButton");
   const status=document.getElementById("status");
   const notification=document.getElementById("notification");
-
   button.disabled=true; button.textContent="送信中...";
   mailBox.classList.add("sending"); notification.style.display="none"; status.style.display="block"; status.textContent="送信中...";
 
-  const hasProduct = words.product.some(w=>input.includes(w));
-  const hasCat = words.cat.some(w=>input.includes(w));
-  const hasHint = words.hint.some(w=>input.includes(w));
-  const hasMenu = words.menu.some(w=>input.includes(w));
-  const hasBread = words.bread.some(w=>input.includes(w));
-  const hasMitaShun = words.mitaShun.some(w=>input.includes(w));
-  const hasNF = words.nf.some(w=>input.includes(w));
+  const xBtn=document.getElementById("xPostButton");
+  const opt1=document.getElementById("opt1");
+  const opt2=document.getElementById("opt2");
+  xBtn.style.display="none"; opt1.style.display="none"; opt2.style.display="none";
 
   setTimeout(()=>{button.textContent="✓ 送信済み"; status.textContent="送信済み";},1200);
-
   setTimeout(()=>{
     status.style.display="none"; notification.style.display="block";
-    const xBtn=document.getElementById("xPostButton");
-    const opt1=document.getElementById("opt1");
-    const opt2=document.getElementById("opt2");
-    xBtn.style.display="none"; opt1.style.display="none"; opt2.style.display="none";
 
-    if(hasCat){
-      replyMessage="パン屋強盗事件　報告を受領した。\n猫、か。\nご主人に聞いたところ飼い猫の「ミルクちゃん」は日課の散歩にでかけたそうだ。\nミルクちゃんを追えば何かわかるかもしれない。\n今回も見事な推理だった。また頼むよ。";
-      canPostToX=true;
-      xBtn.style.display="block";
-    } else if(hasMenu){
-      replyMessage="メニューリスト…ああここにあった。内容を共有する。\n・フランスパン\n・チョココロネ\n・アップルパイ\n・クロワッサン\n・メロンパン\n・食パン\n・サンドウィッチ\n\n何か役に立つだろうか";
-    } else if(hasProduct){
+    if(words.cat.some(w=>input.includes(w))){
+      replyMessage="パン屋強盗事件　報告を受領した。\n猫、か。\nご主人に聞いたところ飼い猫の「ミルクちゃん」は日課の散歩にでかけたそうだ。\nミルクちゃんを追えば何かわかるかもしれない。\n\n今回も見事な推理だった。また頼むよ。";
+      canPostToX=true; xBtn.style.display="block";
+    } else if(words.product.some(w=>input.includes(w))){
       replyMessage="なるほど…商品名か。\nしかしそれでは盗まれたものがわからないな。\n私にできることはあるだろうか？";
-    } else if(hasHint){
+    } else if(words.menu.some(w=>input.includes(w))){
+      replyMessage="<p>メニューリスト…ああここにあった。内容を共有する。</p><ul><li>フランスパン</li><li>チョココロネ</li><li>アップルパイ</li><li>クロワッサン</li><li>メロンパン</li><li>食パン</li><li>サンドウィッチ</li></ul><p>何か役に立つだろうか</p>";
+    } else if(words.hint.some(w=>input.includes(w))){
       replyMessage="一緒に思考を整理しよう。\nまずは君の推理を聞かせてくれ。";
+      opt1.innerText="①1/9、7/9、9/9について"; opt2.innerText="②ある程度わかったが次どうしたらいいか";
       opt1.style.display="block"; opt2.style.display="block";
-    } else if(hasBread){
+    } else if(words.bread.some(w=>input.includes(w))){
       replyMessage="ポイントカードの店に来たが、まさかここでも事件が起こるとはな。\nなんだか怖くなってきたよ。";
-      canPostToX=true;
-      xBtn.style.display="block";
-    } else if(hasMitaShun){
+    } else if(words.mita.some(w=>input.includes(w))){
       replyMessage="次々と事件が起こるな…。";
-      canPostToX=true;
-      xBtn.style.display="block";
-    } else if(hasNF){
-      replyMessage="こういった暗号や謎の類は苦手でね…足で捜査することなら任せてくれ。";
-      canPostToX=true;
-      xBtn.style.display="block";
+    } else if(words.nf.some(w=>input.includes(w))){
+      replyMessage="こういった暗号や謎の類は苦手でね…\n足で捜査することなら任せてくれ。";
     } else{
       replyMessage="なるほど…情報が足りない。\nもう一度確認してほしい。";
     }
+
   },2800);
 }
 
@@ -140,14 +127,15 @@ function openReply(){
   const opt1=document.getElementById("opt1");
   const opt2=document.getElementById("opt2");
 
-  notification.style.display="none"; document.getElementById("overlay").style.display="block";
-  reply.style.display="block"; replyText.innerHTML=""; xBtn.style.display="none"; opt1.style.display="none"; opt2.style.display="none";
+  notification.style.display="none"; document.getElementById("overlay").style.display="block"; reply.style.display="block"; replyText.innerHTML="";
+  xBtn.style.display="none"; opt1.style.display="none"; opt2.style.display="none";
 
   let i=0; if(typingTimer) clearInterval(typingTimer);
 
   typingTimer=setInterval(()=>{
     replyText.innerHTML=replyMessage.slice(0,i); i++;
-    if(i>replyMessage.length){ clearInterval(typingTimer);
+    if(i>replyMessage.length){
+      clearInterval(typingTimer);
       if(canPostToX) setTimeout(()=>{xBtn.style.display="block";},400);
       if(replyMessage.includes("まずは君の推理を聞かせてくれ")){
         opt1.style.display="block"; opt2.style.display="block";
@@ -157,10 +145,14 @@ function openReply(){
 }
 
 function closeReply(){
-  document.getElementById("reply").style.display="none"; document.getElementById("overlay").style.display="none";
-  document.getElementById("notification").style.display="none"; document.getElementById("mailBox").classList.remove("sending");
-  sendButton.textContent="送信"; document.getElementById("xPostButton").style.display="none";
-  document.getElementById("opt1").style.display="none"; document.getElementById("opt2").style.display="none";
+  document.getElementById("reply").style.display="none";
+  document.getElementById("overlay").style.display="none";
+  document.getElementById("notification").style.display="none";
+  document.getElementById("mailBox").classList.remove("sending");
+  sendButton.textContent="送信";
+  document.getElementById("xPostButton").style.display="none";
+  document.getElementById("opt1").style.display="none";
+  document.getElementById("opt2").style.display="none";
   checkInput(); answerBox.focus();
 }
 
@@ -172,12 +164,16 @@ function postToX(){
 }
 
 function optionClick(n){
-  const replyTitle=document.querySelector(".reply-title");
   const replyText=document.getElementById("replyText");
-  let optionText="";
-  if(n===1){ optionText="＞1/9、7/9、9/9について"; replyText.innerHTML="これは日付、ではないのかもしれないな。\n条件に合致しそうなものを見つけてくれ。"; }
-  if(n===2){ optionText="＞ある程度わかったが次どうしたらいいか"; replyText.innerHTML="私に何かできることはないだろうか。\n指示をくれれば行動可能だ。"; }
-  replyTitle.innerHTML=`From: N.F@koreha.fiction.da<br>Subject: RE: パン屋強盗事件　報告メール<br><strong>${optionText}</strong>`;
+  const replyTitle=document.querySelector(".reply-title");
+  if(n===1){ 
+    replyText.innerHTML="これは日付、ではないのかもしれないな。\n条件に合致しそうなものを見つけてくれ。";
+    replyTitle.innerHTML="From: N.F@koreha.fiction.da<br>Subject: RE: ①1/9、7/9、9/9について";
+  }
+  if(n===2){ 
+    replyText.innerHTML="私に何かできることはないだろうか。\n指示をくれれば行動可能だ。";
+    replyTitle.innerHTML="From: N.F@koreha.fiction.da<br>Subject: RE: ②ある程度わかったが次どうしたらいいか";
+  }
 }
 </script>
 </body>
