@@ -110,18 +110,19 @@ function sendMail(){
     xBtn.style.display="none"; opt1.style.display="none"; opt2.style.display="none";
 
     if(hasCat){
-      replyMessage="パン屋強盗事件　報告を受領した。<br>猫、か。<br>ご主人に聞いたところ飼い猫の「ミルクちゃん」は日課の散歩にでかけたそうだ。<br>ミルクちゃんを追えば何かわかるかもしれない。<br><br>今回も見事な推理だった。また頼むよ。";
+      replyMessage="パン屋強盗事件　報告を受領した。\n猫、か。\nご主人に聞いたところ飼い猫の「ミルクちゃん」は日課の散歩にでかけたそうだ。\nミルクちゃんを追えば何かわかるかもしれない。\n\n今回も見事な推理だった。また頼むよ。";
       canPostToX=true;
       xBtn.style.display="block"; // 猫関連メールのみ
     } else if(hasMenu){
       replyMessage="メニューリスト…ああここにあった。内容を共有する。\n<ul><li>フランスパン</li><li>チョココロネ</li><li>アップルパイ</li><li>クロワッサン</li><li>メロンパン</li><li>食パン</li><li>サンドウィッチ</li></ul>\n何か役に立つだろうか";
+      // Xボタンは表示しない
     } else if(hasProduct){
-      replyMessage="なるほど…商品名か。<br>しかしそれでは盗まれたものがわからないな。<br>私にできることはあるだろうか？";
+      replyMessage="なるほど…商品名か。\nしかしそれでは盗まれたものがわからないな。\n私にできることはあるだろうか？";
     } else if(hasHint){
-      replyMessage="一緒に思考を整理しよう。<br>まずは君の推理を聞かせてくれ。";
+      replyMessage="一緒に思考を整理しよう。\nまずは君の推理を聞かせてくれ。";
       opt1.style.display="block"; opt2.style.display="block";
     } else if(hasBread){
-      replyMessage="ポイントカードの店に来たが、まさかここでも事件が起こるとはな。<br>なんだか怖くなってきたよ。";
+      replyMessage="ポイントカードの店に来たが、まさかここでも事件が起こるとはな。\nなんだか怖くなってきたよ。";
     } else if(hasMitaShun){
       replyMessage="次々と事件が起こるな…。";
     } else if(hasNF){
@@ -130,28 +131,6 @@ function sendMail(){
       replyMessage="なるほど…情報が足りない。もう一度確認してほしい。";
     }
   },2800);
-}
-
-// ここでタイトルは選択肢ボタン押した時だけ変更されます
-function optionClick(n){
-  const replyText=document.getElementById("replyText");
-  const replyTitle=document.querySelector(".reply-title");
-  if(n===1){ 
-    replyText.innerHTML="これは日付、ではないのかもしれないな。\n条件に合致しそうなものを見つけてくれ。";
-    replyTitle.innerHTML="From: N.F@koreha.fiction.da<br>Subject: RE: パン屋強盗事件　報告メール<br><strong>＞1/9、7/9、9/9について</strong>";
-  }
-  if(n===2){ 
-    replyText.innerHTML="私に何かできることはないだろうか。\n指示をくれれば行動可能だ。";
-    replyTitle.innerHTML="From: N.F@koreha.fiction.da<br>Subject: RE: パン屋強盗事件　報告メール<br><strong>＞ある程度わかったが次どうしたらいいか</strong>";
-  }
-}
-
-// X投稿（引用RT）ボタン
-function postToX(){
-  const originalTweetUrl="https://x.com/r4lu3m8l/status/2066838202921480355?s=20";
-  const postText="【File003：おりたたみ探偵事務所　パン屋強盗事件】\nパン屋強盗事件の報告を完了。\nN.Fに報告した\n#おりたたみ探偵事務所 #謎解き";
-  const url="https://twitter.com/intent/tweet?text="+encodeURIComponent(postText)+"&url="+encodeURIComponent(originalTweetUrl);
-  window.open(url,"_blank");
 }
 
 function openReply(){
@@ -169,9 +148,7 @@ function openReply(){
   typingTimer=setInterval(()=>{
     replyText.innerHTML=replyMessage.slice(0,i); i++;
     if(i>replyMessage.length){ clearInterval(typingTimer);
-      // Xボタンは猫のみ表示
-      if(words.cat.some(w=>answerBox.value.includes(w))) setTimeout(()=>{xBtn.style.display="block";},400);
-      // 選択肢ボタンはヒントのみ
+      if(canPostToX) setTimeout(()=>{xBtn.style.display="block";},400);
       if(replyMessage.includes("まずは君の推理を聞かせてくれ")){
         opt1.style.display="block"; opt2.style.display="block";
       }
@@ -187,6 +164,26 @@ function closeReply(){
   document.getElementById("notification").style.display="none"; document.getElementById("mailBox").classList.remove("sending");
   sendButton.textContent="送信"; xBtn.style.display="none"; opt1.style.display="none"; opt2.style.display="none";
   checkInput(); answerBox.focus();
+}
+
+function postToX(){
+  const originalTweetUrl="https://x.com/r4lu3m8l/status/2066838202921480355?s=20";
+  const postText="【File003：おりたたみ探偵事務所　パン屋強盗事件】\nパン屋強盗事件の報告を完了。\nN.Fに報告した\n#おりたたみ探偵事務所 #謎解き";
+  const url="https://twitter.com/intent/tweet?text="+encodeURIComponent(postText)+"&url="+encodeURIComponent(originalTweetUrl);
+  window.open(url,"_blank");
+}
+
+function optionClick(n){
+  const replyText=document.getElementById("replyText");
+  const replyTitle=document.querySelector(".reply-title");
+  if(n===1){ 
+    replyText.innerHTML="これは日付、ではないのかもしれないな。\n条件に合致しそうなものを見つけてくれ。";
+    replyTitle.innerHTML="From: N.F@koreha.fiction.da<br>Subject: RE: パン屋強盗事件　報告メール<br><strong>＞1/9、7/9、9/9について</strong>";
+  }
+  if(n===2){ 
+    replyText.innerHTML="私に何かできることはないだろうか。\n指示をくれれば行動可能だ。";
+    replyTitle.innerHTML="From: N.F@koreha.fiction.da<br>Subject: RE: パン屋強盗事件　報告メール<br><strong>＞ある程度わかったが次どうしたらいいか</strong>";
+  }
 }
 </script>
 </body>
