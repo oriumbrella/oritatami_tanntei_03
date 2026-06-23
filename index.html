@@ -96,16 +96,16 @@ function sendMail(){
     xBtn.style.display="none"; opt1.style.display="none"; opt2.style.display="none";
 
     if(hasCat){
-      replyMessage="パン屋強盗事件　報告を受領した。猫、か。ご主人に聞いたところ飼い猫の「ミルクちゃん」が朝から姿が見えないようだ。ミルクちゃんを追えば何かわかるかもしれない。今回も見事な推理だった。また頼むよ。";
+      replyMessage="パン屋強盗事件　報告を受領した。猫、か。\nご主人に聞いたところ飼い猫の「ミルクちゃん」が朝から姿が見えないようだ。\nミルクちゃんを追えば何かわかるかもしれない。\n\n今回も見事な推理だった。また頼むよ。";
       canPostToX=true;
       xBtn.style.display="block";
     } else if(hasProduct){
-      replyMessage="なるほど…商品名か。しかしそれでは盗まれたものがわからないな。私にできることはあるだろうか？";
+      replyMessage="なるほど…商品名か。\nしかしそれでは盗まれたものがわからないな。\n私にできることはあるだろうか？";
     } else if(hasHint){
-      replyMessage="一緒に思考を整理しよう。まずは君の推理を聞かせてくれ。";
+      replyMessage="一緒に思考を整理しよう。\nまずは君の推理を聞かせてくれ。";
       opt1.style.display="block"; opt2.style.display="block";
     } else{
-      replyMessage="なるほど…情報が足りない。もう一度確認してほしい。";
+      replyMessage="なるほど…情報が足りない。\nもう一度確認してほしい。";
     }
   },2800);
 }
