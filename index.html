@@ -14,7 +14,7 @@ body {margin:0;height:100vh;background:#e9eef3;font-family:Arial,sans-serif;disp
 .label {width:80px;color:#777;}
 textarea {width:100%;height:300px;padding:22px;font-size:16px;line-height:1.7;border:none;resize:none;outline:none;font-family:inherit;background:white;box-sizing:border-box;}
 .footer {background:#f1f2f6;padding:14px 18px;text-align:right;}
-button {background:#494B9D;color:white;border:none;border-radius:6px;padding:10px 28px;font-size:15px;cursor:pointer;text-align:left;}
+button {background:#494B9D;color:white;border:none;border-radius:6px;padding:10px 28px;font-size:15px;cursor:pointer;}
 button:disabled {background:#999;cursor:not-allowed;opacity:0.5;}
 .status {display:none;margin-top:16px;text-align:center;color:#555;}
 .notification {display:none;margin-top:20px;background:white;padding:16px 18px;border-radius:10px;box-shadow:0 8px 20px rgba(0,0,0,0.12);cursor:pointer;animation:fadeIn 0.5s;}
@@ -23,13 +23,12 @@ button:disabled {background:#999;cursor:not-allowed;opacity:0.5;}
 #replyText {line-height:1.8;}
 .closeBtn {position:absolute;top:12px;right:16px;background:none;border:none;color:#666;font-size:24px;cursor:pointer;padding:0;width:auto;}
 .closeBtn:hover {color:#000;}
-.xPostBtn, .optionBtn {display:none;margin:16px auto 0 auto;background:#494B9D;color:white;border:none;border-radius:6px;padding:10px 28px;font-size:15px;cursor:pointer;text-align:left;}
+.xPostBtn, .optionBtn {display:none;margin:16px auto 0 auto;border:none;border-radius:8px;padding:10px 22px;font-size:14px;cursor:pointer;}
+.xPostBtn {background:#000;color:white;}
+.optionBtn {background:#494B9D;color:white;text-align:left;width:calc(100% - 32px);}
 .xPostBtn:hover, .optionBtn:hover {opacity:0.8;}
 .overlay {display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.45);z-index:999;}
 footer {margin-top:24px;font-size:12px;color:#555;text-align:center;width:100%;}
-@keyframes fadeIn { from {opacity:0; transform:translateY(12px);} to {opacity:1; transform:translateY(0);} }
-@keyframes xButtonIn { from {opacity:0; transform:translateY(12px);} to {opacity:1; transform:translateY(0);} }
-@media(max-width:600px){body{align-items:flex-start}.row{padding:12px 16px}textarea{height:330px;padding:16px;font-size:15px}button{width:100%;padding:13px}.closeBtn{width:auto}.xPostBtn{width:auto}.optionBtn{width:100%;padding:13px}}
 </style>
 </head>
 <body>
@@ -42,6 +41,7 @@ footer {margin-top:24px;font-size:12px;color:#555;text-align:center;width:100%;}
     <textarea id="answer" placeholder="ここに報告内容を入力してください" oninput="checkInput()"></textarea>
     <div class="footer"><button id="sendButton" onclick="sendMail()" disabled>送信</button></div>
   </div>
+
   <div id="status" class="status">送信中...</div>
   <div id="notification" class="notification" onclick="openReply()">📩 新着メール 1件<br><strong>From: N.F@koreha.fiction.da</strong></div>
 </div>
@@ -63,20 +63,28 @@ footer {margin-top:24px;font-size:12px;color:#555;text-align:center;width:100%;}
 </footer>
 
 <script>
-const answerBox=document.getElementById("answer");
-const sendButton=document.getElementById("sendButton");
+const answerBox = document.getElementById("answer");
+const sendButton = document.getElementById("sendButton");
 function checkInput(){ sendButton.disabled = answerBox.value.trim() === ""; }
 
-let replyMessage="", typingTimer=null, canPostToX=false;
+let replyMessage = "";
+let typingTimer = null;
+let canPostToX = false;
 
-const words={
+const words = {
   product:["商品名"],
   cat:["cat","Cat","ネコ","キャット","猫"],
-  hint:["わからない","ヒント"]
+  hint:["わからない","ヒント"],
+  menu:["menu list","メニューリスト","Menu List"],
+  bread:["bread","BREAD","パン"],
+  mitaShun:["三田駅","みたえき","mitaeki","春野鏡子"],
+  NF:["N.F"]
 };
 
 function sendMail(){
-  const input=answerBox.value.trim(); if(!input) return;
+  const input = answerBox.value.trim();
+  if(!input) return;
+
   const mailBox=document.getElementById("mailBox");
   const button=document.getElementById("sendButton");
   const status=document.getElementById("status");
@@ -85,30 +93,41 @@ function sendMail(){
   button.disabled=true; button.textContent="送信中...";
   mailBox.classList.add("sending"); notification.style.display="none"; status.style.display="block"; status.textContent="送信中...";
 
-  const hasProduct=words.product.some(w=>input.includes(w));
-  const hasCat=words.cat.some(w=>input.includes(w));
-  const hasHint=words.hint.some(w=>input.includes(w));
+  const hasCat = words.cat.some(w=>input.includes(w));
+  const hasHint = words.hint.some(w=>input.includes(w));
+  const hasProduct = words.product.some(w=>input.includes(w));
+  const hasMenu = words.menu.some(w=>input.includes(w));
+  const hasBread = words.bread.some(w=>input.includes(w));
+  const hasMitaShun = words.mitaShun.every(w=>input.includes(w));
+  const hasNF = words.NF.some(w=>input.includes(w));
 
-  setTimeout(()=>{button.textContent="✓ 送信済み"; status.textContent="送信済み";},1200);
+  const xBtn=document.getElementById("xPostButton");
+  const opt1=document.getElementById("opt1");
+  const opt2=document.getElementById("opt2");
+
+  xBtn.style.display="none"; opt1.style.display="none"; opt2.style.display="none";
 
   setTimeout(()=>{
     status.style.display="none"; notification.style.display="block";
-    const xBtn=document.getElementById("xPostButton");
-    const opt1=document.getElementById("opt1");
-    const opt2=document.getElementById("opt2");
-    xBtn.style.display="none"; opt1.style.display="none"; opt2.style.display="none";
 
     if(hasCat){
-      replyMessage="パン屋強盗事件　報告を受領した。\n猫、か。\nご主人に聞いたところ飼い猫の「ミルクちゃん」が朝から姿が見えないようだ。\nミルクちゃんを追えば何かわかるかもしれない。\n\n今回も見事な推理だった。また頼むよ。";
-      canPostToX=true;
-      xBtn.style.display="block";
+      replyMessage="パン屋強盗事件　報告を受領した。<br>猫、か。<br>ご主人に聞いたところ飼い猫の「ミルクちゃん」は日課の散歩にでかけたそうだ。<br>ミルクちゃんを追えば何かわかるかもしれない。<br>今回も見事な推理だった。また頼むよ。";
+      canPostToX=true; xBtn.style.display="block";
+    } else if(hasMenu){
+      replyMessage="メニューリスト…ああここにあった。内容を共有する。<br>・フランスパン<br>・チョココロネ<br>・アップルパイ<br>・クロワッサン<br>・メロンパン<br>・食パン<br>・サンドウィッチ<br>何か役に立つだろうか";
     } else if(hasProduct){
-      replyMessage="なるほど…商品名か。\nしかしそれでは盗まれたものがわからないな。\n私にできることはあるだろうか？";
+      replyMessage="なるほど…商品名か。<br>しかしそれでは盗まれたものがわからないな。<br>私にできることはあるだろうか？";
+    } else if(hasBread){
+      replyMessage="ポイントカードの店に来たが、まさかここでも事件が起こるとはな。なんだか怖くなってきたよ。";
+    } else if(hasMitaShun){
+      replyMessage="次々と事件が起こるな…。";
+    } else if(hasNF){
+      replyMessage="こういった暗号や謎の類は苦手でね…足で捜査することなら任せてくれ。";
     } else if(hasHint){
-      replyMessage="一緒に思考を整理しよう。\nまずは君の推理を聞かせてくれ。";
+      replyMessage="一緒に思考を整理しよう。<br>まずは君の推理を聞かせてくれ。";
       opt1.style.display="block"; opt2.style.display="block";
-    } else{
-      replyMessage="なるほど…情報が足りない。\nもう一度確認してほしい。";
+    } else {
+      replyMessage="なるほど…情報が足りない。<br>もう一度確認してほしい。";
     }
   },2800);
 }
@@ -121,23 +140,31 @@ function openReply(){
   const opt1=document.getElementById("opt1");
   const opt2=document.getElementById("opt2");
 
-  notification.style.display="none"; document.getElementById("overlay").style.display="block"; reply.style.display="block";
-  replyText.innerHTML=""; xBtn.style.display="none"; opt1.style.display="none"; opt2.style.display="none";
+  notification.style.display="none"; document.getElementById("overlay").style.display="block";
+  reply.style.display="block"; replyText.innerHTML="";
+  xBtn.style.display="none"; opt1.style.display="none"; opt2.style.display="none";
 
   let i=0; if(typingTimer) clearInterval(typingTimer);
-
   typingTimer=setInterval(()=>{
-    replyText.innerHTML=replyMessage.slice(0,i); i++;
-    if(i>replyMessage.length){ clearInterval(typingTimer);
-      if(canPostToX) setTimeout(()=>{xBtn.style.display="block";},400);
+    replyText.innerHTML = replyMessage.slice(0,i); i++;
+    if(i>replyMessage.length){
+      clearInterval(typingTimer);
+      if(replyMessage.includes("猫") || replyMessage.includes("Cat") || replyMessage.includes("ネコ") || replyMessage.includes("キャット")) xBtn.style.display="block";
       if(replyMessage.includes("まずは君の推理を聞かせてくれ")){ opt1.style.display="block"; opt2.style.display="block"; }
     }
   },25);
 }
 
 function closeReply(){
-  document.getElementById("reply").style.display="none"; document.getElementById("overlay").style.display="none"; document.getElementById("notification").style.display="none";
-  document.getElementById("mailBox").classList.remove("sending"); sendButton.textContent="送信"; xPostButton.style.display="none"; opt1.style.display="none"; opt2.style.display="none"; checkInput(); answerBox.focus();
+  document.getElementById("reply").style.display="none";
+  document.getElementById("overlay").style.display="none";
+  document.getElementById("notification").style.display="none";
+  document.getElementById("mailBox").classList.remove("sending");
+  sendButton.textContent="送信";
+  document.getElementById("xPostButton").style.display="none";
+  document.getElementById("opt1").style.display="none";
+  document.getElementById("opt2").style.display="none";
+  checkInput(); answerBox.focus();
 }
 
 function postToX(){
@@ -149,10 +176,9 @@ function postToX(){
 
 function optionClick(n){
   const replyText=document.getElementById("replyText");
-  if(n===1) replyText.innerHTML="これは日付、ではないのかもしれないな。\n条件に合致しそうなものを見つけてくれ。";
-  if(n===2) replyText.innerHTML="私に何かできることはないだろうか。\n指示をくれれば行動可能だ。";
+  if(n===1) replyText.innerHTML="これは日付、ではないのかもしれないな。<br>条件に合致しそうなものを見つけてくれ。";
+  if(n===2) replyText.innerHTML="私に何かできることはないだろうか。<br>指示をくれれば行動可能だ。";
 }
 </script>
-
 </body>
 </html>
