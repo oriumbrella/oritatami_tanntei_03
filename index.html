@@ -94,13 +94,12 @@ function sendMail(){
   const button=document.getElementById("sendButton");
   const status=document.getElementById("status");
 
-  button.disabled=false;
-  button.textContent="送信中...";
+  button.disabled=false; // 修正: 入力可能に
   mailBox.classList.add("sending");
+  status.style.display="block"; status.textContent="送信中...";
   notification.style.display="none";
-  status.style.display="block";
-  status.textContent="送信中...";
 
+  // 判定
   const hasCat=words.cat.some(w=>input.includes(w));
   const hasProduct=words.product.some(w=>input.includes(w));
   const hasHint=words.hint.some(w=>input.includes(w));
@@ -120,6 +119,7 @@ function sendMail(){
     status.style.display="none";
     notification.style.display="block";
 
+    // 初期非表示
     const xBtn=document.getElementById("xPostButton");
     const opt1=document.getElementById("opt1");
     const opt2=document.getElementById("opt2");
@@ -127,6 +127,7 @@ function sendMail(){
     const opt4=document.getElementById("opt4");
     xBtn.style.display="none"; opt1.style.display="none"; opt2.style.display="none"; opt3.style.display="none"; opt4.style.display="none";
 
+    // 新着メールキュー追加
     if(hasCat){
       replyMessage="パン屋強盗事件　報告を受領した。\n猫、か。\nご主人に聞いたところ飼い猫の「ミルクちゃん」は日課の散歩にでかけたそうだ。\nミルクちゃんを追えば何かわかるかもしれない。\n\n今回も見事な推理だった。また頼むよ。";
       canPostToX=true;
@@ -134,33 +135,18 @@ function sendMail(){
     } else if(hasMenu){
       replyMessage="メニューリスト…ああここにあった。内容を共有する。\n<ul><li>フランスパン</li><li>チョココロネ</li><li>アップルパイ</li><li>クロワッサン</li><li>メロンパン</li><li>食パン</li><li>サンドウィッチ</li></ul>\n何か役に立つだろうか";
       newMailQueue.push({msg:replyMessage, x:false});
-    } else if(hasProduct){
-      replyMessage="なるほど…商品名か。\nしかしそれでは盗まれたものがわからないな。\n私にできることはあるだろうか？";
-      newMailQueue.push({msg:replyMessage, x:false});
-    } else if(hasHint){
-      replyMessage="一緒に思考を整理しよう。\nまずは君の推理を聞かせてくれ。";
-      newMailQueue.push({msg:replyMessage, x:false, opt:true});
-    } else if(hasBread){
-      replyMessage="ポイントカードの店に来たが、まさかここでも事件が起こるとはな。\nなんだか怖くなってきたよ。";
-      newMailQueue.push({msg:replyMessage, x:false});
-    } else if(hasMitaShun){
-      replyMessage="次々と事件が起こるな…。";
-      newMailQueue.push({msg:replyMessage, x:false});
     } else if(hasEnglish){
-      replyMessage="なるほど、英語か…\nざっと書き出すとこんな感じだろうか\n<ul><li>French bread</li><li>Chocolate cornet</li><li>Apple pie</li><li>Croissant</li><li>Melon pan</li><li>White bread</li><li>Sandwich</li></ul>";
+      replyMessage="なるほど、英語か…\n<ul><li>French bread</li><li>Chocolate cornet</li><li>Apple pie</li><li>Croissant</li><li>Melon pan</li><li>White bread</li><li>Sandwich</li></ul>";
       newMailQueue.push({msg:replyMessage, x:false});
     } else if(hasOtherLang){
       replyMessage="すまない…その言語には明るくなくてね…";
-      newMailQueue.push({msg:replyMessage, x:false});
-    } else if(hasNF){
-      replyMessage="こういった暗号や謎の類は苦手でね…足で捜査することなら任せてくれ。";
       newMailQueue.push({msg:replyMessage, x:false});
     } else{
       replyMessage="なるほど…情報が足りない。もう一度確認してほしい。";
       newMailQueue.push({msg:replyMessage, x:false});
     }
 
-    // 新着通知
+    // 新着通知更新
     if(newMailQueue.length>0){
       notification.innerHTML="📩 新着メール 1件<br><strong>From: N.F@koreha.fiction.da</strong>";
     }
@@ -168,6 +154,8 @@ function sendMail(){
 }
 
 function openReply(){
+  if(newMailQueue.length===0) return;
+
   const reply=document.getElementById("reply");
   const replyText=document.getElementById("replyText");
   const replyTitle=document.querySelector(".reply-title");
@@ -177,7 +165,6 @@ function openReply(){
   const opt3=document.getElementById("opt3");
   const opt4=document.getElementById("opt4");
 
-  if(newMailQueue.length===0) return;
   const mail=newMailQueue.shift();
   replyMessage=mail.msg;
   canPostToX=mail.x;
@@ -193,9 +180,6 @@ function openReply(){
     replyText.innerHTML=replyMessage.slice(0,i); i++;
     if(i>replyMessage.length){ clearInterval(typingTimer);
       if(canPostToX) xBtn.style.display="block";
-      if(replyMessage.includes("まずは君の推理を聞かせてくれ")){
-        opt1.style.display="block"; opt2.style.display="block"; opt3.style.display="block"; opt4.style.display="block";
-      }
     }
   },25);
 }
@@ -247,6 +231,5 @@ function optionClick(n){
   },500);
 }
 </script>
-
 </body>
 </html>
