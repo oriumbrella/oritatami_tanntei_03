@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>File003：パン屋強盗事件　報告メール</title>
+<title>パン屋強盗事件　報告メール</title>
 <style>
 body {margin:0;height:100vh;background:#e9eef3;font-family:Arial,sans-serif;display:flex;justify-content:center;align-items:center;flex-direction:column;padding:14px;}
 .app {width:100%; max-width:760px;}
@@ -25,7 +25,7 @@ button:disabled {background:#999;cursor:not-allowed;opacity:0.5;}
 .closeBtn:hover {color:#000;}
 .xPostBtn {display:none;margin:16px auto 0 auto;background:#000;color:white;border:none;border-radius:8px;padding:10px 22px;font-size:14px;cursor:pointer;text-align:center;}
 .xPostBtn:hover {opacity:0.8;}
-.optionBtn {display:none;margin:8px 0 0 0;background:#494B9D;color:white;border:none;border-radius:6px;padding:10px 28px;font-size:15px;cursor:pointer;text-align:left;width:100%;}
+.optionBtn {display:block;margin:8px 0 0 0;background:#494B9D;color:white;border:none;border-radius:6px;padding:10px 28px;font-size:15px;cursor:pointer;text-align:left;width:100%;}
 .optionBtn:hover {opacity:0.8;}
 .overlay {display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.45);z-index:999;}
 footer {margin-top:24px;font-size:12px;color:#555;text-align:center;width:100%;}
@@ -44,9 +44,6 @@ footer {margin-top:24px;font-size:12px;color:#555;text-align:center;width:100%;}
 
   <div id="status" class="status">送信中...</div>
   <div id="notification" class="notification" onclick="openReply()">📩 新着メール 1件<br><strong>From: N.F@koreha.fiction.da</strong></div>
-  <div id="optionNotification" class="notification" style="display:none;" onclick="openOptionReply()">
-    📩 新着メール 1件<br><strong id="optionTitle"></strong>
-  </div>
 </div>
 
 <div id="overlay" class="overlay" onclick="closeReply()"></div>
@@ -72,7 +69,6 @@ const sendButton=document.getElementById("sendButton");
 function checkInput(){ sendButton.disabled = answerBox.value.trim() === ""; }
 
 let replyMessage="", typingTimer=null, canPostToX=false;
-
 const words={
   product:["商品名"],
   cat:["cat","Cat","ネコ","キャット","猫"],
@@ -89,11 +85,9 @@ function sendMail(){
   const button=document.getElementById("sendButton");
   const status=document.getElementById("status");
   const notification=document.getElementById("notification");
-  const optionNotification=document.getElementById("optionNotification");
 
   button.disabled=true; button.textContent="送信中...";
-  mailBox.classList.add("sending"); notification.style.display="none"; optionNotification.style.display="none"; 
-  status.style.display="block"; status.textContent="送信中...";
+  mailBox.classList.add("sending"); notification.style.display="none"; status.style.display="block"; status.textContent="送信中...";
 
   const hasCat=words.cat.some(w=>input.includes(w));
   const hasProduct=words.product.some(w=>input.includes(w));
@@ -116,7 +110,7 @@ function sendMail(){
     if(hasCat){
       replyMessage="パン屋強盗事件　報告を受領した。\n猫、か。\nご主人に聞いたところ飼い猫の「ミルクちゃん」は日課の散歩にでかけたそうだ。\nミルクちゃんを追えば何かわかるかもしれない。\n\n今回も見事な推理だった。また頼むよ。";
       canPostToX=true;
-      xBtn.style.display="block";
+      xBtn.style.display="block"; // 猫関連メールのみ
     } else if(hasMenu){
       replyMessage="メニューリスト…ああここにあった。内容を共有する。\n<ul><li>フランスパン</li><li>チョココロネ</li><li>アップルパイ</li><li>クロワッサン</li><li>メロンパン</li><li>食パン</li><li>サンドウィッチ</li></ul>\n何か役に立つだろうか";
     } else if(hasProduct){
@@ -138,26 +132,24 @@ function sendMail(){
 
 function openReply(){
   const notification=document.getElementById("notification");
-  const optionNotification=document.getElementById("optionNotification");
   const reply=document.getElementById("reply");
   const replyText=document.getElementById("replyText");
-  const replyTitle=document.querySelector(".reply-title");
   const xBtn=document.getElementById("xPostButton");
   const opt1=document.getElementById("opt1");
   const opt2=document.getElementById("opt2");
   const opt3=document.getElementById("opt3");
 
-  notification.style.display="none"; optionNotification.style.display="none";
-  document.getElementById("overlay").style.display="block"; reply.style.display="block";
+  notification.style.display="none"; document.getElementById("overlay").style.display="block"; reply.style.display="block";
   replyText.innerHTML=""; xBtn.style.display="none"; opt1.style.display="none"; opt2.style.display="none"; opt3.style.display="none";
 
   let i=0; if(typingTimer) clearInterval(typingTimer);
   typingTimer=setInterval(()=>{
-    replyText.innerHTML=replyMessage.replace(/\n/g,"<br>");
-    clearInterval(typingTimer);
-    if(canPostToX) xBtn.style.display="block";
-    if(replyMessage.includes("まずは君の推理を聞かせてくれ")){
-      opt1.style.display="block"; opt2.style.display="block"; opt3.style.display="block";
+    replyText.innerHTML=replyMessage.slice(0,i); i++;
+    if(i>replyMessage.length){ clearInterval(typingTimer);
+      if(canPostToX) setTimeout(()=>{xBtn.style.display="block";},400);
+      if(replyMessage.includes("まずは君の推理を聞かせてくれ")){
+        opt1.style.display="block"; opt2.style.display="block"; opt3.style.display="block";
+      }
     }
   },25);
 }
@@ -167,11 +159,8 @@ function closeReply(){
   const opt1=document.getElementById("opt1");
   const opt2=document.getElementById("opt2");
   const opt3=document.getElementById("opt3");
-  document.getElementById("reply").style.display="none";
-  document.getElementById("overlay").style.display="none";
-  document.getElementById("notification").style.display="none";
-  document.getElementById("optionNotification").style.display="none";
-  document.getElementById("mailBox").classList.remove("sending");
+  document.getElementById("reply").style.display="none"; document.getElementById("overlay").style.display="none";
+  document.getElementById("notification").style.display="none"; document.getElementById("mailBox").classList.remove("sending");
   sendButton.textContent="送信"; xBtn.style.display="none"; opt1.style.display="none"; opt2.style.display="none"; opt3.style.display="none";
   checkInput(); answerBox.focus();
 }
@@ -184,34 +173,20 @@ function postToX(){
 }
 
 function optionClick(n){
-  const optNotification=document.getElementById("optionNotification");
-  const optionTitle=document.getElementById("optionTitle");
-  let replyTxt="", titleTxt="";
-  if(n===1){
-    replyTxt="これは日付、ではないのかもしれないな。\n条件に合致しそうなものを見つけてくれ。";
-    titleTxt="＞1/9、7/9、9/9について";
-  } else if(n===2){
-    replyTxt="私に何かできることはないだろうか。\n指示をくれれば行動可能だ。";
-    titleTxt="＞ある程度わかったが次どうしたらいいか";
-  } else if(n===3){
-    replyTxt="おそらく「1/9、7/9、9/9」をもう一度使うのだろう。\nメニューリストのなかに9文字になれる単語はないだろうか。";
-    titleTxt="＞その先がわからない";
-  }
-  optNotification.dataset.reply = replyTxt;
-  optionTitle.innerText = titleTxt;
-  optNotification.style.display="block";
-}
-
-function openOptionReply(){
-  const optNotification=document.getElementById("optionNotification");
-  const reply=document.getElementById("reply");
   const replyText=document.getElementById("replyText");
   const replyTitle=document.querySelector(".reply-title");
-
-  optNotification.style.display="none";
-  reply.style.display="block";
-  replyText.innerHTML = optNotification.dataset.reply.replace(/\n/g,"<br>");
-  replyTitle.innerHTML = "From: N.F@koreha.fiction.da<br>Subject: RE: パン屋強盗事件　報告メール<br><strong>" + document.getElementById("optionTitle").innerText + "</strong>";
+  if(n===1){ 
+    replyText.innerHTML="これは日付、ではないのかもしれないな。\n条件に合致しそうなものを見つけてくれ。";
+    replyTitle.innerHTML="From: N.F@koreha.fiction.da<br>Subject: RE: パン屋強盗事件　報告メール<br><strong>＞1/9、7/9、9/9について</strong>";
+  }
+  if(n===2){ 
+    replyText.innerHTML="私に何かできることはないだろうか。\n指示をくれれば行動可能だ。";
+    replyTitle.innerHTML="From: N.F@koreha.fiction.da<br>Subject: RE: パン屋強盗事件　報告メール<br><strong>＞ある程度わかったが次どうしたらいいか</strong>";
+  }
+  if(n===3){ 
+    replyText.innerHTML="おそらく「1/9、7/9、9/9」をもう一度使うのだろう。\nメニューリストのなかに9文字になれる単語はないだろうか。";
+    replyTitle.innerHTML="From: N.F@koreha.fiction.da<br>Subject: RE: パン屋強盗事件　報告メール<br><strong>＞その先がわからない</strong>";
+  }
 }
 </script>
 
