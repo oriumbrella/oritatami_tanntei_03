@@ -28,6 +28,7 @@
   }
 
   .app {
+    display: none;
     width: 100%;
     max-width: 760px;
     position: relative;
@@ -336,13 +337,218 @@
       padding: 20px;
     }
   }
+
+  /* 最初に表示する受信メール */
+  .intro-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1999;
+    background: rgba(0, 0, 0, 0.48);
+  }
+
+  .intro-mail {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    z-index: 2000;
+    width: min(92vw, 650px);
+    max-height: 92vh;
+    overflow-y: auto;
+    border-radius: 14px;
+    background: #ffffff;
+    box-shadow: 0 22px 55px rgba(0, 0, 0, 0.32);
+    transform: translate(-50%, -50%);
+    animation: introMailIn 0.35s ease;
+  }
+
+  .intro-header {
+    padding: 17px 20px;
+    border-radius: 14px 14px 0 0;
+    background: #2f3848;
+    color: #ffffff;
+    font-size: 17px;
+    font-weight: 700;
+  }
+
+  .intro-info {
+    padding: 14px 20px;
+    border-bottom: 1px solid #d5d5d5;
+    font-size: 14px;
+    line-height: 1.85;
+  }
+
+  .intro-info a {
+    color: #000000;
+    text-decoration: underline;
+  }
+
+  .intro-body {
+    padding: 22px 20px;
+    font-size: 16px;
+    line-height: 1.9;
+  }
+
+  .intro-body p {
+    margin: 0 0 16px;
+  }
+
+  .intro-attachment-title {
+    margin-top: 24px;
+    padding-top: 18px;
+    border-top: 1px solid #d7d7d7;
+    color: #666666;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .intro-attachment {
+    display: block;
+    margin-top: 12px;
+    padding: 12px;
+    border: 1px solid #d7dce2;
+    border-radius: 9px;
+    background: #f7f8fa;
+    color: #222222;
+    text-decoration: none;
+  }
+
+  .intro-attachment:hover {
+    background: #eef1f5;
+  }
+
+  .intro-image-area {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 180px;
+    overflow: hidden;
+    border-radius: 7px;
+    background: #ececec;
+  }
+
+  .intro-image-area img {
+    display: block;
+    width: 100%;
+    max-height: 430px;
+    object-fit: contain;
+  }
+
+  .intro-image-error {
+    display: none;
+    padding: 38px 12px;
+    color: #777777;
+    text-align: center;
+    line-height: 1.8;
+  }
+
+  .intro-attachment-name {
+    display: block;
+    margin-top: 10px;
+    color: #555555;
+    font-size: 13px;
+    line-height: 1.7;
+  }
+
+  .intro-footer {
+    padding: 16px 20px;
+    border-radius: 0 0 14px 14px;
+    background: #e6e7ea;
+    text-align: right;
+  }
+
+  #startButton {
+    padding: 12px 24px;
+    font-weight: 700;
+  }
+
+  @keyframes introMailIn {
+    from {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.98);
+    }
+
+    to {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+  }
+
 </style>
 
 </head>
 
 <body>
 
-<div class="app">
+
+<!-- 最初に表示する受信メール -->
+<div id="introOverlay" class="intro-overlay"></div>
+
+<div id="introMail" class="intro-mail" role="dialog" aria-modal="true">
+  <div class="intro-header">新着メール</div>
+
+  <div class="intro-info">
+    <strong>From:</strong>
+    <a href="mailto:N.F@koreha.fiction.da">N.F@koreha.fiction.da</a><br>
+    <strong>To:</strong> あなた<br>
+    <strong>Subject:</strong> パン屋窃盗事件の調査依頼
+  </div>
+
+  <div class="intro-body">
+    <p>パン屋で窃盗事件が起きたようだ。</p>
+
+    <p>
+      現場には謎のメモが残されている。これを解いて何に隠したのか教えてもらえないだろうか。
+    </p>
+
+    <p>資料はまとめて添付しておいた。</p>
+
+    <p>何かわかったり気になることがあれば聞いてくれ。</p>
+    <p>君がもし困ったら「わからない」や「ヒント」など連絡をくれ。一緒に考えることはできると思う。</p>
+
+    <p>―― N.F</p>
+
+    <div class="intro-attachment-title">添付ファイル 1件</div>
+
+    <a
+      class="intro-attachment"
+      href="./file003_資料.png?v=20260729-1"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <div class="intro-image-area">
+        <img
+          src="./file003_資料.png?v=20260729-1"
+          alt="パン屋強盗事件の資料"
+          onload="
+            this.style.display='block';
+            document.getElementById('introImageError').style.display='none';
+          "
+          onerror="
+            this.style.display='none';
+            document.getElementById('introImageError').style.display='block';
+          "
+        >
+
+        <div id="introImageError" class="intro-image-error">
+          画像を表示できませんでした。<br>
+          「file003_資料.png」がindex.htmlと同じ場所にあるか確認してください。
+        </div>
+      </div>
+
+      <span class="intro-attachment-name">
+        📎 file003_資料.png<br>
+        クリックすると画像を拡大表示します
+      </span>
+    </a>
+  </div>
+
+  <div class="intro-footer">
+    <button id="startButton" type="button">調査を開始する</button>
+  </div>
+</div>
+
+
+<div class="app" id="app">
   <div class="mail" id="mailBox">
     <div class="header">パン屋強盗事件　報告メール</div>
 
@@ -395,6 +601,11 @@
 </footer>
 
 <script>
+  const app = document.getElementById("app");
+  const introMail = document.getElementById("introMail");
+  const introOverlay = document.getElementById("introOverlay");
+  const startButton = document.getElementById("startButton");
+
   const answerBox = document.getElementById("answer");
   const sendButton = document.getElementById("sendButton");
   const notification = document.getElementById("notification");
@@ -462,7 +673,7 @@
           text: "私に何かできることはないだろうか。\n現場で気になるものはなかっただろうか、指示をくれれば行動しよう。"
         }
       ],
-      suffix: "＞次どうしたらいいか",
+      suffix: "＞日付ではないことはわったが、次がわからない",
       options: [3]
     },
 
@@ -473,7 +684,7 @@
           text: "おそらく「1/9、7/9、9/9」をもう一度使うのだろう。\nメニューリストのなかに9文字になれる単語はないだろうか。"
         }
       ],
-      suffix: "＞その先がわからない",
+      suffix: "＞指示はしたが、次がわからない",
       options: [4]
     },
 
@@ -930,6 +1141,19 @@
       answerBox.focus();
     }, 0);
   }
+
+
+  function startInvestigation() {
+    introMail.style.display = "none";
+    introOverlay.style.display = "none";
+    app.style.display = "block";
+
+    setTimeout(function() {
+      answerBox.focus();
+    }, 0);
+  }
+
+  startButton.addEventListener("click", startInvestigation);
 
   answerBox.addEventListener("input", updateSendButton);
 
